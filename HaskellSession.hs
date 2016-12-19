@@ -140,4 +140,14 @@ graph''' f lower upper =
 graph'''' :: (Enum a) => (a -> b) -> a -> a -> [(a, b)]
 graph'''' f lower upper = (\x -> (x, f x)) <$> [lower..upper]
 
+graph2 :: (a -> b) -> [a] -> [(a, b)]
+graph2 f range = fmap (\x -> (x, f x)) range
+
+-- pointfree
+-- graph3 :: (a -> b) -> [a] -> [(a, b)]
+graph3 f = fmap (\x -> (x, f x))
+
+graph4 :: Functor f => (a -> b) -> f a -> f (a,b)
+graph4 f = fmap (\x -> (x, f x))
+
 -- graph' f lower upper = (lower, f(lower)) : graph' f (succ lower) upper
