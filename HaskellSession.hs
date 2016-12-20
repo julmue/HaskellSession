@@ -30,10 +30,10 @@ data MyList a
     | Cons a (MyList a)
     deriving(Show, Eq)
 
-data Tree a
-    = Node (Tree a) (Tree a)
-    | Leaf a
-    deriving(Show)
+--data Tree a
+--    = Node (Tree a) (Tree a)
+--    | Leaf a
+--    deriving(Show)
 
 myLast :: [a] -> a
 myLast [] = error "boom!"
@@ -150,4 +150,39 @@ graph3 f = fmap (\x -> (x, f x))
 graph4 :: Functor f => (a -> b) -> f a -> f (a,b)
 graph4 f = fmap (\x -> (x, f x))
 
+degraph :: (Eq a) =>  [(a, b)] -> a -> Maybe b
+degraph [] a = Nothing
+degraph ((x, y):xs) a =
+    if x == a then Just y
+    else degraph xs a
+    
+-- degraph' l a = snd <$> safeHead (filter (==a))
+
 -- graph' f lower upper = (lower, f(lower)) : graph' f (succ lower) upper
+
+newtype Identity a = Identity { runIdentity :: a }
+
+instance Functor Identity where
+    fmap f = Identity . f . runIdentity
+    
+instance (Eq a) => Eq (Identity a) where
+    Identity x == Identity y = x == y
+    
+instance (Ord a) => Ord (Identity a) where
+    Identity x <= Identity y = x <= y
+
+data RoseTree a = Leaf a | Node [RoseTree a] deriving Show
+
+flatten :: RoseTree a -> [a]
+flatten (Leaf a) = [a]
+flatten (Node []) = []
+flatten (Node (x:xs)) = flatten x ++ flatten (Node xs)
+
+-- Complicated
+-- instance Functor RoseTree where
+--    fmap f (Leaf a) = Leaf (f a)
+--    fmap f (Node (t:ts)) = Node ((fmap f t):(fmap (fmap f) ts))
+
+instance Functor RoseTree where
+    fmap f (Leaf a) = Leaf (f a)
+    fmap f (Node ts) = Node $ fmap (fmap f) ts -- Node  (fmap (fmap f) ts)
